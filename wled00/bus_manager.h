@@ -1,4 +1,3 @@
-#pragma once
 #ifndef BusManager_h
 #define BusManager_h
 
@@ -9,30 +8,6 @@
 #include "const.h"
 #include "pin_manager.h"
 #include <vector>
-#include <memory>
-
-// enable additional debug output
-#if defined(WLED_DEBUG_HOST)
-  #include "net_debug.h"
-  #define DEBUGOUT NetDebug
-#else
-  #define DEBUGOUT Serial
-#endif
-
-#ifdef WLED_DEBUG_BUS
-  #ifndef ESP8266
-  #include <rom/rtc.h>
-  #endif
-  #define DEBUGBUS_PRINT(x) DEBUGOUT.print(x)
-  #define DEBUGBUS_PRINTLN(x) DEBUGOUT.println(x)
-  #define DEBUGBUS_PRINTF(x...) DEBUGOUT.printf(x)
-  #define DEBUGBUS_PRINTF_P(x...) DEBUGOUT.printf_P(x)
-#else
-  #define DEBUGBUS_PRINT(x)
-  #define DEBUGBUS_PRINTLN(x)
-  #define DEBUGBUS_PRINTF(x...)
-  #define DEBUGBUS_PRINTF_P(x...)
-#endif
 
 //colors.cpp
 uint16_t approximateKelvinFromRGB(uint32_t rgb);
@@ -103,51 +78,50 @@ class Bus {
       _autoWhiteMode = Bus::hasWhite(type) ? aw : RGBW_MODE_MANUAL_ONLY;
     };
 
-    virtual ~Bus() {} //throw the bus under the bus (derived class needs to freeData())
+    virtual ~Bus() {} //throw the bus under the bus
 
-    virtual void     begin()                                    {};
+    virtual void     begin() {};
     virtual void     show() = 0;
-    virtual bool     canShow() const                            { return true; }
-    virtual void     setStatusPixel(uint32_t c)                 {}
+    virtual bool     canShow() const                          { return true; }
+    virtual void     setStatusPixel(uint32_t c)                {}
     virtual void     setPixelColor(unsigned pix, uint32_t c) = 0;
-    virtual void     setBrightness(uint8_t b)                   { _bri = b; };
-    virtual void     setColorOrder(uint8_t co)                  {}
-    virtual uint32_t getPixelColor(unsigned pix) const          { return 0; }
-    virtual unsigned getPins(uint8_t* pinArray = nullptr) const { return 0; }
-    virtual uint16_t getLength() const                          { return isOk() ? _len : 0; }
-    virtual uint8_t  getColorOrder() const                      { return COL_ORDER_RGB; }
-    virtual unsigned skippedLeds() const                        { return 0; }
-    virtual uint16_t getFrequency() const                       { return 0U; }
-    virtual uint16_t getLEDCurrent() const                      { return 0; }
-    virtual uint16_t getUsedCurrent() const                     { return 0; }
-    virtual uint16_t getMaxCurrent() const                      { return 0; }
-    virtual unsigned getBusSize() const                         { return sizeof(Bus); }
+    virtual void     setBrightness(uint8_t b)                  { _bri = b; };
+    virtual void     setColorOrder(uint8_t co)                 {}
+    virtual uint32_t getPixelColor(unsigned pix) const         { return 0; }
+    virtual uint8_t  getPins(uint8_t* pinArray = nullptr) const { return 0; }
+    virtual uint16_t getLength() const                         { return isOk() ? _len : 0; }
+    virtual uint8_t  getColorOrder() const                     { return COL_ORDER_RGB; }
+    virtual uint8_t  skippedLeds() const                       { return 0; }
+    virtual uint16_t getFrequency() const                      { return 0U; }
+    virtual uint16_t getLEDCurrent() const                     { return 0; }
+    virtual uint16_t getUsedCurrent() const                    { return 0; }
+    virtual uint16_t getMaxCurrent() const                     { return 0; }
 
-    inline  bool     hasRGB() const                             { return _hasRgb; }
-    inline  bool     hasWhite() const                           { return _hasWhite; }
-    inline  bool     hasCCT() const                             { return _hasCCT; }
-    inline  bool     isDigital() const                          { return isDigital(_type); }
-    inline  bool     is2Pin() const                             { return is2Pin(_type); }
-    inline  bool     isOnOff() const                            { return isOnOff(_type); }
-    inline  bool     isPWM() const                              { return isPWM(_type); }
-    inline  bool     isVirtual() const                          { return isVirtual(_type); }
-    inline  bool     is16bit() const                            { return is16bit(_type); }
-    inline  bool     mustRefresh() const                        { return mustRefresh(_type); }
-    inline  void     setReversed(bool reversed)                 { _reversed = reversed; }
-    inline  void     setStart(uint16_t start)                   { _start = start; }
-    inline  void     setAutoWhiteMode(uint8_t m)                { if (m < 5) _autoWhiteMode = m; }
-    inline  uint8_t  getAutoWhiteMode() const                   { return _autoWhiteMode; }
-    inline  unsigned getNumberOfChannels() const                { return hasWhite() + 3*hasRGB() + hasCCT(); }
-    inline  uint16_t getStart() const                           { return _start; }
-    inline  uint8_t  getType() const                            { return _type; }
-    inline  bool     isOk() const                               { return _valid; }
-    inline  bool     isReversed() const                         { return _reversed; }
-    inline  bool     isOffRefreshRequired() const               { return _needsRefresh; }
-    inline  bool     containsPixel(uint16_t pix) const          { return pix >= _start && pix < _start + _len; }
+    inline  bool     hasRGB() const                            { return _hasRgb; }
+    inline  bool     hasWhite() const                          { return _hasWhite; }
+    inline  bool     hasCCT() const                            { return _hasCCT; }
+    inline  bool     isDigital() const                         { return isDigital(_type); }
+    inline  bool     is2Pin() const                            { return is2Pin(_type); }
+    inline  bool     isOnOff() const                           { return isOnOff(_type); }
+    inline  bool     isPWM() const                             { return isPWM(_type); }
+    inline  bool     isVirtual() const                         { return isVirtual(_type); }
+    inline  bool     is16bit() const                           { return is16bit(_type); }
+    inline  bool     mustRefresh() const                       { return mustRefresh(_type); }
+    inline  void     setReversed(bool reversed)                { _reversed = reversed; }
+    inline  void     setStart(uint16_t start)                  { _start = start; }
+    inline  void     setAutoWhiteMode(uint8_t m)               { if (m < 5) _autoWhiteMode = m; }
+    inline  uint8_t  getAutoWhiteMode() const                  { return _autoWhiteMode; }
+    inline  uint32_t getNumberOfChannels() const               { return hasWhite() + 3*hasRGB() + hasCCT(); }
+    inline  uint16_t getStart() const                          { return _start; }
+    inline  uint8_t  getType() const                           { return _type; }
+    inline  bool     isOk() const                              { return _valid; }
+    inline  bool     isReversed() const                        { return _reversed; }
+    inline  bool     isOffRefreshRequired() const              { return _needsRefresh; }
+    inline  bool     containsPixel(uint16_t pix) const         { return pix >= _start && pix < _start + _len; }
 
-    static inline std::vector<LEDType> getLEDTypes()            { return {{TYPE_NONE, "", PSTR("None")}}; } // not used. just for reference for derived classes
-    static constexpr unsigned getNumberOfPins(uint8_t type)     { return isVirtual(type) ? 4 : isPWM(type) ? numPWMPins(type) : is2Pin(type) + 1; } // credit @PaoloTK
-    static constexpr unsigned getNumberOfChannels(uint8_t type) { return hasWhite(type) + 3*hasRGB(type) + hasCCT(type); }
+    static inline std::vector<LEDType> getLEDTypes()           { return {{TYPE_NONE, "", PSTR("None")}}; } // not used. just for reference for derived classes
+    static constexpr uint32_t getNumberOfPins(uint8_t type)     { return isVirtual(type) ? 4 : isPWM(type) ? numPWMPins(type) : is2Pin(type) + 1; } // credit @PaoloTK
+    static constexpr uint32_t getNumberOfChannels(uint8_t type) { return hasWhite(type) + 3*hasRGB(type) + hasCCT(type); }
     static constexpr bool hasRGB(uint8_t type) {
       return !((type >= TYPE_WS2812_1CH && type <= TYPE_WS2812_WWA) || type == TYPE_ANALOG_1CH || type == TYPE_ANALOG_2CH || type == TYPE_ONOFF);
     }
@@ -179,7 +153,7 @@ class Bus {
     static inline uint8_t  getGlobalAWMode()          { return _gAWM; }
     static inline void     setCCT(int16_t cct)        { _cct = cct; }
     static inline uint8_t  getCCTBlend()              { return _cctBlend; }
-    static inline void     setCCTBlend(uint8_t b) {
+    static inline void setCCTBlend(uint8_t b) {
       _cctBlend = (std::min((int)b,100) * 127) / 100;
       //compile-time limiter for hardware that can't power both white channels at max
       #ifdef WLED_MAX_CCT_BLEND
@@ -218,7 +192,7 @@ class Bus {
 
     uint32_t autoWhiteCalc(uint32_t c) const;
     uint8_t *allocateData(size_t size = 1);
-    void     freeData();
+    void     freeData() { if (_data != nullptr) free(_data); _data = nullptr; }
 };
 
 
@@ -235,13 +209,12 @@ class BusDigital : public Bus {
     void setColorOrder(uint8_t colorOrder) override;
     [[gnu::hot]] uint32_t getPixelColor(unsigned pix) const override;
     uint8_t  getColorOrder() const override  { return _colorOrder; }
-    unsigned getPins(uint8_t* pinArray = nullptr) const override;
-    unsigned skippedLeds() const override    { return _skip; }
+    uint8_t  getPins(uint8_t* pinArray = nullptr) const override;
+    uint8_t  skippedLeds() const override    { return _skip; }
     uint16_t getFrequency() const override   { return _frequencykHz; }
     uint16_t getLEDCurrent() const override  { return _milliAmpsPerLed; }
     uint16_t getUsedCurrent() const override { return _milliAmpsTotal; }
     uint16_t getMaxCurrent() const override  { return _milliAmpsMax; }
-    unsigned getBusSize() const override;
     void begin() override;
     void cleanup();
 
@@ -271,7 +244,7 @@ class BusDigital : public Bus {
       return c;
     }
 
-    uint8_t  estimateCurrentAndLimitBri() const;
+    uint8_t  estimateCurrentAndLimitBri();
 };
 
 
@@ -282,11 +255,10 @@ class BusPwm : public Bus {
 
     void setPixelColor(unsigned pix, uint32_t c) override;
     uint32_t getPixelColor(unsigned pix) const override; //does no index check
-    unsigned getPins(uint8_t* pinArray = nullptr) const override;
+    uint8_t  getPins(uint8_t* pinArray = nullptr) const override;
     uint16_t getFrequency() const override { return _frequency; }
-    unsigned getBusSize() const override   { return sizeof(BusPwm); }
     void show() override;
-    inline void cleanup() { deallocatePins(); _data = nullptr; }
+    void cleanup() { deallocatePins(); }
 
     static std::vector<LEDType> getLEDTypes();
 
@@ -310,10 +282,9 @@ class BusOnOff : public Bus {
 
     void setPixelColor(unsigned pix, uint32_t c) override;
     uint32_t getPixelColor(unsigned pix) const override;
-    unsigned getPins(uint8_t* pinArray) const override;
-    unsigned getBusSize() const override { return sizeof(BusOnOff); }
+    uint8_t  getPins(uint8_t* pinArray) const override;
     void show() override;
-    inline void cleanup() { PinManager::deallocatePin(_pin, PinOwner::BusOnOff); _data = nullptr; }
+    void cleanup() { PinManager::deallocatePin(_pin, PinOwner::BusOnOff); }
 
     static std::vector<LEDType> getLEDTypes();
 
@@ -329,10 +300,9 @@ class BusNetwork : public Bus {
     ~BusNetwork() { cleanup(); }
 
     bool canShow() const override  { return !_broadcastLock; } // this should be a return value from UDP routine if it is still sending data out
-    [[gnu::hot]] void setPixelColor(unsigned pix, uint32_t c) override;
-    [[gnu::hot]] uint32_t getPixelColor(unsigned pix) const override;
-    unsigned getPins(uint8_t* pinArray = nullptr) const override;
-    unsigned getBusSize() const override  { return sizeof(BusNetwork) + (isOk() ? _len * _UDPchannels : 0); }
+    void setPixelColor(unsigned pix, uint32_t c) override;
+    uint32_t getPixelColor(unsigned pix) const override;
+    uint8_t  getPins(uint8_t* pinArray = nullptr) const override;
     void show() override;
     void cleanup();
 
@@ -378,16 +348,6 @@ struct BusConfig {
     type = busType & 0x7F;  // bit 7 may be/is hacked to include refresh info (1=refresh in off state, 0=no refresh)
     size_t nPins = Bus::getNumberOfPins(type);
     for (size_t i = 0; i < nPins; i++) pins[i] = ppins[i];
-    DEBUGBUS_PRINTF_P(PSTR("Bus: Config (%d-%d, type:%d, CO:%d, rev:%d, skip:%d, AW:%d kHz:%d, mA:%d/%d)\n"),
-      (int)start, (int)(start+len),
-      (int)type,
-      (int)colorOrder,
-      (int)reversed,
-      (int)skipAmount,
-      (int)autoWhite,
-      (int)frequency,
-      (int)milliAmpsPerLed, (int)milliAmpsMax
-    );
   }
 
   //validates start and length and extends total if needed
@@ -401,8 +361,6 @@ struct BusConfig {
     if (start + count > total) total = start + count;
     return true;
   }
-
-  unsigned memUsage(unsigned nr = 0) const;
 };
 
 
@@ -420,13 +378,14 @@ class BusManager {
   public:
     BusManager() {};
 
-    static unsigned memUsage();
+    //utility to get the approx. memory usage of a given BusConfig
+    static uint32_t memUsage(const BusConfig &bc);
+    static uint32_t memUsage(unsigned channels, unsigned count, unsigned buses = 1);
     static uint16_t currentMilliamps() { return _milliAmpsUsed + MA_FOR_ESP; }
     static uint16_t ablMilliampsMax()  { return _milliAmpsMax; }
 
     static int add(const BusConfig &bc);
     static void useParallelOutput(); // workaround for inaccessible PolyBus
-    static bool hasParallelOutput(); // workaround for inaccessible PolyBus
 
     //do not call this method from system context (network callback)
     static void removeAll();
@@ -450,24 +409,25 @@ class BusManager {
 
     //semi-duplicate of strip.getLengthTotal() (though that just returns strip._length, calculated in finalizeInit())
     static uint16_t getTotalLength();
-    static inline uint8_t getNumBusses() { return busses.size(); }
+    static inline uint8_t getNumBusses() { return numBusses; }
     static String getLEDTypesJSONString();
 
     static inline ColorOrderMap& getColorOrderMap() { return colorOrderMap; }
 
   private:
-    //static std::vector<std::unique_ptr<Bus>> busses; // we'd need C++ >11
-    static std::vector<Bus*> busses;
+    static uint8_t numBusses;
+    static Bus* busses[WLED_MAX_BUSSES+WLED_MIN_VIRTUAL_BUSSES];
     static ColorOrderMap colorOrderMap;
     static uint16_t _milliAmpsUsed;
     static uint16_t _milliAmpsMax;
+    static uint8_t _parallelOutputs;
 
     #ifdef ESP32_DATA_IDLE_HIGH
     static void    esp32RMTInvertIdle() ;
     #endif
     static uint8_t getNumVirtualBusses() {
       int j = 0;
-      for (const auto &bus : busses) j += bus->isVirtual();
+      for (int i=0; i<numBusses; i++) if (busses[i]->isVirtual()) j++;
       return j;
     }
 };

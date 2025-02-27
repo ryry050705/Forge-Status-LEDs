@@ -338,7 +338,7 @@ bool deserializeState(JsonObject root, byte callMode, byte presetId)
 
 #ifndef WLED_DISABLE_MODE_BLEND
   blendingStyle = root[F("bs")] | blendingStyle;
-  blendingStyle &= 0x1F;
+  blendingStyle = constrain(blendingStyle, 0, BLEND_STYLE_COUNT-1);
 #endif
 
   // temporary transition (applies only once)
